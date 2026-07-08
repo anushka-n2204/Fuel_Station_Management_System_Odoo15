@@ -46,28 +46,7 @@ Manages the full operations of a fuel station:
         'views/fuel_purchase_views.xml',
         'views/fuel_fleet_views.xml',
         'views/menu.xml',
-
-        # Reports
-        'report/shift_report.xml',
-        'report/daily_sales_report.xml',
-        'report/tank_level_report.xml',
-
-        # Website
-        'website/templates/home.xml',
-        'website/templates/about.xml',
-        'website/templates/fuel_prices.xml',
-        'website/templates/contact.xml',
-        'website/templates/fleet_register.xml',
     ],
-
-    'assets': {
-        'web.assets_backend': [
-            'fuel_station/static/src/css/fuel_station.css',
-        ],
-        'website.assets_frontend': [
-            'fuel_station/static/src/css/fuel_station.css',
-        ],
-    },
 
     'application': True,
     'installable': True,

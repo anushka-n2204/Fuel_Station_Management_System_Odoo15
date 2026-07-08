@@ -129,7 +129,7 @@
     <record id="action_fuel_purchase" model="ir.actions.act_window">
         <field name="name">Purchases</field>
         <field name="res_model">fuel.purchase</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create your first purchase order

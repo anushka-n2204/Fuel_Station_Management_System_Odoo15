@@ -223,7 +223,7 @@
     <record id="action_fuel_shift" model="ir.actions.act_window">
         <field name="name">Shifts</field>
         <field name="res_model">fuel.shift</field>
-        <field name="view_mode">list,kanban,form</field>
+        <field name="view_mode">tree,kanban,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Start a new shift

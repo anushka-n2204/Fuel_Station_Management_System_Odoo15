@@ -58,6 +58,14 @@ class FuelNozzle(models.Model):
         ('name_pump_unique', 'UNIQUE(name, pump_id)', 'Nozzle names must be unique per pump.'),
     ]
 
+    def write(self, vals):
+        if 'current_meter' in vals and not self.env.context.get('allow_nozzle_meter_update'):
+            raise ValidationError(
+                'The current meter reading of a nozzle can only be updated '
+                'automatically by closing a shift.'
+            )
+        return super(FuelNozzle, self).write(vals)
+
     def name_get(self):
         """Display as 'Nozzle A1 – Pump 1' in dropdowns."""
         result = []

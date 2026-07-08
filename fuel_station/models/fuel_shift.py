@@ -260,8 +260,10 @@ class FuelShift(models.Model):
                 if tank:
                     tank.current_stock -= litres
 
-                # Update nozzle current meter
-                line.nozzle_id.current_meter = line.closing_meter
+                # Update nozzle current meter (bypass read-only restriction in write)
+                line.nozzle_id.with_context(allow_nozzle_meter_update=True).write({
+                    'current_meter': line.closing_meter
+                })
 
             # 5. Record timestamp and set state
             shift.write({
@@ -287,7 +289,7 @@ class FuelShift(models.Model):
             'name': f'Sales — {self.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'fuel.sale',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'domain': [('shift_id', '=', self.id)],
             'context': {'default_shift_id': self.id},
         }

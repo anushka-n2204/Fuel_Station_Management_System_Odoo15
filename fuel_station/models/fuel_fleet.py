@@ -126,7 +126,7 @@ class FuelFleet(models.Model):
             'name': f'Credit Sales — {self.name}',
             'type': 'ir.actions.act_window',
             'res_model': 'fuel.sale',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'domain': [('fleet_id', '=', self.id)],
             'context': {
                 'default_fleet_id': self.id,

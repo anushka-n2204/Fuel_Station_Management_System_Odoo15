@@ -30,7 +30,10 @@ Manages the full operations of a fuel station:
     ],
 
     'data': [
-        # Security — must come first
+        # Sequences — must come first so auto-numbering is available
+        'data/sequences.xml',
+
+        # Security — must come before views
         'security/ir.model.access.csv',
 
         # Views

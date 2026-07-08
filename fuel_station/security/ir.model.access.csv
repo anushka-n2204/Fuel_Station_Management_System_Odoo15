@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fuel_type_user,fuel.type user,model_fuel_type,base.group_user,1,1,1,1
+access_fuel_tank_user,fuel.tank user,model_fuel_tank,base.group_user,1,1,1,1
+access_fuel_pump_user,fuel.pump user,model_fuel_pump,base.group_user,1,1,1,1
+access_fuel_nozzle_user,fuel.nozzle user,model_fuel_nozzle,base.group_user,1,1,1,1
+access_fuel_shift_user,fuel.shift user,model_fuel_shift,base.group_user,1,1,1,0
+access_fuel_shift_line_user,fuel.shift.line user,model_fuel_shift_line,base.group_user,1,1,1,0
+access_fuel_sale_user,fuel.sale user,model_fuel_sale,base.group_user,1,1,1,0
+access_fuel_purchase_user,fuel.purchase user,model_fuel_purchase,base.group_user,1,1,1,0
+access_fuel_expense_user,fuel.expense user,model_fuel_expense,base.group_user,1,1,1,1
+access_fuel_fleet_user,fuel.fleet user,model_fuel_fleet,base.group_user,1,1,1,1

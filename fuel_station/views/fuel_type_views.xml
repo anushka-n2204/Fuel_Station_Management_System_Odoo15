@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FUEL TYPE — List, Form, Search, Action
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- List view -->
+    <record id="fuel_type_view_list" model="ir.ui.view">
+        <field name="name">fuel.type.list</field>
+        <field name="model">fuel.type</field>
+        <field name="arch" type="xml">
+            <tree string="Fuel Types" decoration-muted="not active">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="price_per_litre" string="Price / Litre"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="fuel_type_view_form" model="ir.ui.view">
+        <field name="name">fuel.type.form</field>
+        <field name="model">fuel.type</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Type">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="e.g. Petrol"/></h1>
+                    </div>
+                    <group>
+                        <group string="Details">
+                            <field name="code" placeholder="e.g. PET"/>
+                            <field name="price_per_litre"/>
+                        </group>
+                        <group string="Settings">
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="fuel_type_view_search" model="ir.ui.view">
+        <field name="name">fuel.type.search</field>
+        <field name="model">fuel.type</field>
+        <field name="arch" type="xml">
+            <search string="Fuel Types">
+                <field name="name" string="Fuel Type"/>
+                <field name="code"/>
+                <filter name="active" string="Active" domain="[('active','=',True)]"/>
+                <filter name="archived" string="Archived" domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_fuel_type" model="ir.actions.act_window">
+        <field name="name">Fuel Types</field>
+        <field name="res_model">fuel.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define your first fuel type
+            </p>
+            <p>Add fuel types such as Petrol, Diesel, or Premium with their
+               selling price per litre.</p>
+        </field>
+    </record>
+
+</odoo>

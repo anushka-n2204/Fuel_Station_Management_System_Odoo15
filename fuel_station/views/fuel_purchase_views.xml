@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FUEL PURCHASE — List, Form, Search, Action
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- List view -->
+    <record id="fuel_purchase_view_list" model="ir.ui.view">
+        <field name="name">fuel.purchase.list</field>
+        <field name="model">fuel.purchase</field>
+        <field name="arch" type="xml">
+            <tree string="Fuel Purchases"
+                  decoration-info="state == 'confirmed'"
+                  decoration-success="state == 'delivered'"
+                  decoration-muted="state == 'invoiced'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="supplier_id"/>
+                <field name="tank_id"/>
+                <field name="fuel_type_id"/>
+                <field name="quantity" string="Qty (L)" sum="Total Litres"/>
+                <field name="price_per_litre" string="Price"/>
+                <field name="total_cost" sum="Total Cost"/>
+                <field name="delivery_date" string="Exp. Delivery"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-info="state == 'confirmed'"
+                       decoration-success="state == 'delivered'"
+                       decoration-primary="state == 'invoiced'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="fuel_purchase_view_form" model="ir.ui.view">
+        <field name="name">fuel.purchase.form</field>
+        <field name="model">fuel.purchase</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Purchase">
+                <header>
+                    <button name="action_confirm" string="Confirm Order"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="action_deliver" string="Mark Delivered"
+                            type="object" class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'confirmed')]}"/>
+                    <button name="action_mark_invoiced" string="Mark Invoiced"
+                            type="object" class="btn-secondary"
+                            attrs="{'invisible': [('state', '!=', 'delivered')]}"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,delivered,invoiced"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Order Details">
+                            <field name="supplier_id"/>
+                            <field name="date"/>
+                            <field name="delivery_date"/>
+                            <field name="actual_delivery_date" readonly="1"
+                                   attrs="{'invisible': [('actual_delivery_date', '=', False)]}"/>
+                        </group>
+                        <group string="Fuel &amp; Tank">
+                            <field name="tank_id"/>
+                            <field name="fuel_type_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Quantity &amp; Cost">
+                            <field name="quantity"/>
+                            <field name="price_per_litre"/>
+                            <field name="total_cost" readonly="1"/>
+                        </group>
+                        <group string="Accounting"
+                               attrs="{'invisible': [('move_id', '=', False)]}">
+                            <field name="move_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1" placeholder="Additional notes…"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="fuel_purchase_view_search" model="ir.ui.view">
+        <field name="name">fuel.purchase.search</field>
+        <field name="model">fuel.purchase</field>
+        <field name="arch" type="xml">
+            <search string="Fuel Purchases">
+                <field name="name" string="Reference"/>
+                <field name="supplier_id"/>
+                <field name="tank_id"/>
+                <field name="fuel_type_id"/>
+                <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
+                <filter name="confirmed" string="Confirmed" domain="[('state','=','confirmed')]"/>
+                <filter name="delivered" string="Delivered" domain="[('state','=','delivered')]"/>
+                <filter name="invoiced" string="Invoiced" domain="[('state','=','invoiced')]"/>
+                <separator/>
+                <filter name="pending_delivery" string="Pending Delivery"
+                        domain="[('state','in',['draft','confirmed'])]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_supplier" string="Supplier"
+                            context="{'group_by':'supplier_id'}"/>
+                    <filter name="group_tank" string="Tank"
+                            context="{'group_by':'tank_id'}"/>
+                    <filter name="group_fuel" string="Fuel Type"
+                            context="{'group_by':'fuel_type_id'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_fuel_purchase" model="ir.actions.act_window">
+        <field name="name">Purchases</field>
+        <field name="res_model">fuel.purchase</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first purchase order
+            </p>
+            <p>Record fuel orders from suppliers. When marked as delivered,
+               the destination tank's stock is automatically replenished.</p>
+        </field>
+    </record>
+
+</odoo>

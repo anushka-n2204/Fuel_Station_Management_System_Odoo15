@@ -44,6 +44,7 @@ Manages the full operations of a fuel station:
         'views/fuel_shift_views.xml',
         'views/fuel_sale_views.xml',
         'views/fuel_purchase_views.xml',
+        'views/fuel_fleet_views.xml',
         'views/menu.xml',
 
         # Reports

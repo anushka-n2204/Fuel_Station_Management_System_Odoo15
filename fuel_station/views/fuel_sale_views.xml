@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FUEL SALE — List, Form, Search, Action
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- List view -->
+    <record id="fuel_sale_view_list" model="ir.ui.view">
+        <field name="name">fuel.sale.list</field>
+        <field name="model">fuel.sale</field>
+        <field name="arch" type="xml">
+            <tree string="Fuel Sales"
+                  decoration-info="payment_method == 'credit'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="shift_id"/>
+                <field name="nozzle_id"/>
+                <field name="fuel_type_id"/>
+                <field name="litres_sold" string="Litres" sum="Total Litres"/>
+                <field name="price_per_litre" string="Price"/>
+                <field name="subtotal" sum="Total Revenue"/>
+                <field name="payment_method" widget="badge"
+                       decoration-success="payment_method == 'cash'"
+                       decoration-info="payment_method == 'card'"
+                       decoration-warning="payment_method == 'credit'"/>
+                <field name="fleet_id"
+                       attrs="{'invisible': [('payment_method', '!=', 'credit')]}"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="fuel_sale_view_form" model="ir.ui.view">
+        <field name="name">fuel.sale.form</field>
+        <field name="model">fuel.sale</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Sale">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Sale Details">
+                            <field name="shift_id"/>
+                            <field name="date"/>
+                            <field name="nozzle_id"/>
+                            <field name="fuel_type_id"/>
+                        </group>
+                        <group string="Quantity &amp; Price">
+                            <field name="litres_sold"/>
+                            <field name="price_per_litre"/>
+                            <field name="subtotal" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Payment">
+                            <field name="payment_method"/>
+                            <field name="fleet_id"
+                                   attrs="{'invisible': [('payment_method', '!=', 'credit')],
+                                           'required': [('payment_method', '=', 'credit')]}"/>
+                        </group>
+                        <group string="Accounting">
+                            <field name="move_id" readonly="1"
+                                   attrs="{'invisible': [('move_id', '=', False)]}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="fuel_sale_view_search" model="ir.ui.view">
+        <field name="name">fuel.sale.search</field>
+        <field name="model">fuel.sale</field>
+        <field name="arch" type="xml">
+            <search string="Fuel Sales">
+                <field name="name" string="Reference"/>
+                <field name="shift_id"/>
+                <field name="fuel_type_id"/>
+                <field name="fleet_id"/>
+                <filter name="cash" string="Cash" domain="[('payment_method','=','cash')]"/>
+                <filter name="card" string="Card" domain="[('payment_method','=','card')]"/>
+                <filter name="credit" string="Fleet Credit" domain="[('payment_method','=','credit')]"/>
+                <separator/>
+                <filter name="today" string="Today"
+                        domain="[('date','=', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_fuel" string="Fuel Type"
+                            context="{'group_by':'fuel_type_id'}"/>
+                    <filter name="group_shift" string="Shift"
+                            context="{'group_by':'shift_id'}"/>
+                    <filter name="group_payment" string="Payment Method"
+                            context="{'group_by':'payment_method'}"/>
+                    <filter name="group_date" string="Date"
+                            context="{'group_by':'date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_fuel_sale" model="ir.actions.act_window">
+        <field name="name">Sales</field>
+        <field name="res_model">fuel.sale</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No sales yet
+            </p>
+            <p>Sales are created automatically when a shift is closed.
+               Each nozzle's meter difference becomes one sale record.</p>
+        </field>
+    </record>
+
+</odoo>

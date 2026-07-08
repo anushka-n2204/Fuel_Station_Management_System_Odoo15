@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         TOP-LEVEL APP MENU
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fuel_station_root"
+              name="Fuel Station"
+              sequence="50"
+              web_icon="fuel_station,static/description/icon.png"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         OPERATIONS
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fuel_operations"
+              name="Operations"
+              parent="menu_fuel_station_root"
+              sequence="10"/>
+
+    <menuitem id="menu_fuel_shift"
+              name="Shifts"
+              parent="menu_fuel_operations"
+              action="action_fuel_shift"
+              sequence="10"/>
+
+    <menuitem id="menu_fuel_sale"
+              name="Sales"
+              parent="menu_fuel_operations"
+              action="action_fuel_sale"
+              sequence="20"/>
+
+    <menuitem id="menu_fuel_purchase"
+              name="Purchases"
+              parent="menu_fuel_operations"
+              action="action_fuel_purchase"
+              sequence="30"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FLEET
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fuel_fleet_root"
+              name="Fleet"
+              parent="menu_fuel_station_root"
+              sequence="20"/>
+
+    <menuitem id="menu_fuel_fleet"
+              name="Fleet Accounts"
+              parent="menu_fuel_fleet_root"
+              action="action_fuel_fleet"
+              sequence="10"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         CONFIGURATION
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fuel_config"
+              name="Configuration"
+              parent="menu_fuel_station_root"
+              sequence="90"/>
+
+    <menuitem id="menu_fuel_type"
+              name="Fuel Types"
+              parent="menu_fuel_config"
+              action="action_fuel_type"
+              sequence="10"/>
+
+    <menuitem id="menu_fuel_tank"
+              name="Tanks"
+              parent="menu_fuel_config"
+              action="action_fuel_tank"
+              sequence="20"/>
+
+    <menuitem id="menu_fuel_pump"
+              name="Pumps"
+              parent="menu_fuel_config"
+              action="action_fuel_pump"
+              sequence="30"/>
+
+    <menuitem id="menu_fuel_nozzle"
+              name="Nozzles"
+              parent="menu_fuel_config"
+              action="action_fuel_nozzle"
+              sequence="40"/>
+
+</odoo>

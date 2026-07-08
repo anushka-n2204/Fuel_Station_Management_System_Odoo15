@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FUEL NOZZLE — List, Form, Search, Action
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- List view -->
+    <record id="fuel_nozzle_view_list" model="ir.ui.view">
+        <field name="name">fuel.nozzle.list</field>
+        <field name="model">fuel.nozzle</field>
+        <field name="arch" type="xml">
+            <tree string="Fuel Nozzles" decoration-muted="not active">
+                <field name="name"/>
+                <field name="pump_id"/>
+                <field name="fuel_type_id"/>
+                <field name="pump_location" string="Location"/>
+                <field name="current_meter" string="Current Meter (L)"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="fuel_nozzle_view_form" model="ir.ui.view">
+        <field name="name">fuel.nozzle.form</field>
+        <field name="model">fuel.nozzle</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Nozzle">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="e.g. Nozzle A1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Nozzle Details">
+                            <field name="pump_id"/>
+                            <field name="fuel_type_id"/>
+                            <field name="pump_location" readonly="1"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Meter Reading">
+                            <field name="current_meter"
+                                   string="Current Meter (L)"
+                                   help="Cumulative litre counter — updated automatically when a shift is closed."/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="fuel_nozzle_view_search" model="ir.ui.view">
+        <field name="name">fuel.nozzle.search</field>
+        <field name="model">fuel.nozzle</field>
+        <field name="arch" type="xml">
+            <search string="Nozzles">
+                <field name="name" string="Nozzle Name"/>
+                <field name="pump_id"/>
+                <field name="fuel_type_id"/>
+                <filter name="active" string="Active"
+                        domain="[('active','=',True)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_pump" string="Pump"
+                            context="{'group_by':'pump_id'}"/>
+                    <filter name="group_fuel" string="Fuel Type"
+                            context="{'group_by':'fuel_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_fuel_nozzle" model="ir.actions.act_window">
+        <field name="name">Nozzles</field>
+        <field name="res_model">fuel.nozzle</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add your first nozzle
+            </p>
+            <p>Nozzles are the individual dispensing points on each pump.
+               Their cumulative meter readings are used to calculate litres sold
+               per shift.</p>
+        </field>
+    </record>
+
+</odoo>

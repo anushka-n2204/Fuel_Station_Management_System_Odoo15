@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FUEL PUMP — List, Form, Search, Action
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- List view -->
+    <record id="fuel_pump_view_list" model="ir.ui.view">
+        <field name="name">fuel.pump.list</field>
+        <field name="model">fuel.pump</field>
+        <field name="arch" type="xml">
+            <tree string="Fuel Pumps" decoration-muted="not active">
+                <field name="name"/>
+                <field name="tank_id"/>
+                <field name="fuel_type_id" string="Fuel Type"/>
+                <field name="location"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="fuel_pump_view_form" model="ir.ui.view">
+        <field name="name">fuel.pump.form</field>
+        <field name="model">fuel.pump</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Pump">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="e.g. Pump 1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Pump Details">
+                            <field name="tank_id"/>
+                            <field name="fuel_type_id" readonly="1"/>
+                            <field name="location"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Nozzles" name="nozzles">
+                            <field name="nozzle_ids">
+                                <tree editable="bottom">
+                                    <field name="name"/>
+                                    <field name="fuel_type_id"/>
+                                    <field name="current_meter"/>
+                                    <field name="active"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="fuel_pump_view_search" model="ir.ui.view">
+        <field name="name">fuel.pump.search</field>
+        <field name="model">fuel.pump</field>
+        <field name="arch" type="xml">
+            <search string="Fuel Pumps">
+                <field name="name" string="Pump Name"/>
+                <field name="tank_id"/>
+                <field name="fuel_type_id"/>
+                <filter name="active" string="Active"
+                        domain="[('active','=',True)]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter name="group_tank" string="Tank"
+                            context="{'group_by':'tank_id'}"/>
+                    <filter name="group_fuel" string="Fuel Type"
+                            context="{'group_by':'fuel_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window action -->
+    <record id="action_fuel_pump" model="ir.actions.act_window">
+        <field name="name">Fuel Pumps</field>
+        <field name="res_model">fuel.pump</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Set up your first pump
+            </p>
+            <p>Pumps are connected to underground tanks. Add nozzles to each pump
+               to track individual dispensing points.</p>
+        </field>
+    </record>
+
+</odoo>

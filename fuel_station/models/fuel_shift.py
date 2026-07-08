@@ -1,5 +1,5 @@
-from odoo import api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo import api, fields, models  # pyrefly: ignore [missing-import]
+from odoo.exceptions import UserError, ValidationError  # pyrefly: ignore [missing-import]
 
 
 class FuelShift(models.Model):
@@ -219,7 +219,28 @@ class FuelShift(models.Model):
                         f'opening meter ({line.opening_meter:.2f}).'
                     )
 
-            # 2 & 3 & 4. Process each line
+            # 2. Pre-validate stock sufficiency across ALL lines before any write.
+            #    Accumulate total litres demanded per tank so that multi-nozzle
+            #    tanks (several nozzles drawing from the same tank) are checked
+            #    as a whole, not line-by-line.
+            tank_demand = {}  # {tank_id: total_litres_demanded}
+            for line in shift.shift_line_ids:
+                litres = line.closing_meter - line.opening_meter
+                tank = line.nozzle_id.pump_id.tank_id
+                if tank:
+                    tank_demand[tank] = tank_demand.get(tank, 0.0) + litres
+
+            for tank, demanded in tank_demand.items():
+                if demanded > tank.current_stock:
+                    raise UserError(
+                        f'Cannot close shift: tank "{tank.name}" has only '
+                        f'{tank.current_stock:.2f} L available but '
+                        f'{demanded:.2f} L were dispensed through its nozzles. '
+                        f'Please verify the meter readings or replenish the tank '
+                        f'before closing.'
+                    )
+
+            # 3 & 4 & 5. All tanks have sufficient stock — apply writes.
             for line in shift.shift_line_ids:
                 litres = line.closing_meter - line.opening_meter
 
@@ -237,8 +258,7 @@ class FuelShift(models.Model):
                 # Decrement tank stock via the nozzle → pump → tank chain
                 tank = line.nozzle_id.pump_id.tank_id
                 if tank:
-                    new_stock = tank.current_stock - litres
-                    tank.current_stock = new_stock
+                    tank.current_stock -= litres
 
                 # Update nozzle current meter
                 line.nozzle_id.current_meter = line.closing_meter

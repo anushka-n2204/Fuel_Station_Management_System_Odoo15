@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FUEL ACCOUNT CONFIG — Form view + action
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Form view -->
+    <record id="fuel_account_config_view_form" model="ir.ui.view">
+        <field name="name">fuel.account.config.form</field>
+        <field name="model">fuel.account.config</field>
+        <field name="arch" type="xml">
+            <form string="Fuel Station Accounting Settings" create="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Accounting Settings</h1>
+                    </div>
+                    <group>
+                        <group string="Sales Accounting">
+                            <field name="journal_id"/>
+                            <field name="income_account_id"/>
+                            <field name="receivable_account_id"/>
+                        </group>
+                        <group string="Purchase Accounting">
+                            <field name="purchase_journal_id"/>
+                            <field name="expense_account_id"/>
+                            <field name="payable_account_id"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" style="margin-top:16px;">
+                        <strong>How it works:</strong>
+                        <ul style="margin-bottom:0;">
+                            <li><strong>Sales:</strong> When a shift is closed, a journal entry is
+                                auto-created for each sale — debiting the receivable and crediting
+                                the income account.</li>
+                            <li><strong>Fleet Credit:</strong> Fleet credit sales use the fleet
+                                partner's receivable instead of the default receivable.</li>
+                            <li><strong>Purchases:</strong> When a fuel purchase is delivered, a
+                                vendor bill (draft) is created. Click "Post Bill" to post it.</li>
+                        </ul>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Window action (called by menu item via config model method) -->
+    <record id="action_fuel_account_config" model="ir.actions.act_window">
+        <field name="name">Accounting Settings</field>
+        <field name="res_model">fuel.account.config</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure fuel station accounting
+            </p>
+            <p>Set the journals and accounts used for automatic journal entries
+               on fuel sales and vendor bills on fuel purchases.</p>
+        </field>
+    </record>
+
+</odoo>

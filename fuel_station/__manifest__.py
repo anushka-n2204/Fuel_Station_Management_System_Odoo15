@@ -45,6 +45,10 @@ Manages the full operations of a fuel station:
         'views/fuel_sale_views.xml',
         'views/fuel_purchase_views.xml',
         'views/fuel_fleet_views.xml',
+        'views/fuel_account_config_views.xml',
+        'views/reports.xml',
+        'views/report_templates.xml',
+        'views/fuel_report_wizard_views.xml',
         'views/menu.xml',
     ],
 

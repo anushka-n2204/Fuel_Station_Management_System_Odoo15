@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Shift Summary Report -->
+    <record id="action_report_shift_summary" model="ir.actions.report">
+        <field name="name">Shift Summary</field>
+        <field name="model">fuel.shift</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fuel_station.report_shift_summary_template</field>
+        <field name="report_file">fuel_station.report_shift_summary_template</field>
+        <field name="binding_model_id" ref="model_fuel_shift"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Daily Sales Report -->
+    <record id="action_report_daily_sales" model="ir.actions.report">
+        <field name="name">Daily Sales Report</field>
+        <field name="model">fuel.sale</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fuel_station.report_daily_sales_template</field>
+        <field name="report_file">fuel_station.report_daily_sales_template</field>
+        <field name="binding_model_id" ref="model_fuel_sale"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Tank Level Report -->
+    <record id="action_report_tank_level" model="ir.actions.report">
+        <field name="name">Tank Level Report</field>
+        <field name="model">fuel.tank</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fuel_station.report_tank_level_template</field>
+        <field name="report_file">fuel_station.report_tank_level_template</field>
+        <field name="binding_model_id" ref="model_fuel_tank"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Customer Statement -->
+    <record id="action_report_customer_statement" model="ir.actions.report">
+        <field name="name">Customer Statement</field>
+        <field name="model">fuel.fleet</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">fuel_station.report_customer_statement_template</field>
+        <field name="report_file">fuel_station.report_customer_statement_template</field>
+        <field name="binding_model_id" ref="model_fuel_fleet"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

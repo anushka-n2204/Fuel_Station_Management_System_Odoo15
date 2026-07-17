@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Wizard Form View -->
+    <record id="fuel_report_wizard_view_form" model="ir.ui.view">
+        <field name="name">fuel.report.wizard.form</field>
+        <field name="model">fuel.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Excel Reports">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="report_type"/>
+                        </group>
+                        <group attrs="{'invisible': [('report_type', '=', 'stock')]}">
+                            <field name="date_from" attrs="{'required': [('report_type', '!=', 'stock')]}"/>
+                            <field name="date_to" attrs="{'required': [('report_type', '!=', 'stock')]}"/>
+                        </group>
+                    </group>
+                    
+                    <!-- File Download Section -->
+                    <group attrs="{'invisible': [('excel_file', '=', False)]}" string="Download File">
+                        <field name="excel_filename" invisible="1"/>
+                        <field name="excel_file" filename="excel_filename" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_excel" string="Generate Excel" type="object" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action for Wizard -->
+    <record id="action_fuel_report_wizard" model="ir.actions.act_window">
+        <field name="name">Excel Exports</field>
+        <field name="res_model">fuel.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -111,3 +111,36 @@ class FuelTank(models.Model):
             fuel = rec.fuel_type_id.code or ''
             result.append((rec.id, f'{rec.name} — {fuel}'))
         return result
+
+    @api.model
+    def _cron_low_stock_alert(self):
+        """Send email alerts for tanks with low or critical stock levels."""
+        low_tanks = self.search([
+            ('active', '=', True),
+            ('stock_status', 'in', ['low', 'critical']),
+        ])
+        if not low_tanks:
+            return
+
+        company = self.env.company
+        recipient = company.email
+        if not recipient:
+            return
+
+        # Build email body
+        body = '<h3>Low Stock Alert for Underground Tanks</h3><ul>'
+        for tank in low_tanks:
+            body += (
+                f'<li><strong>{tank.name}</strong> ({tank.fuel_type_id.name}): '
+                f'Current Stock: {tank.current_stock:.2f} L / Capacity: {tank.capacity:.2f} L '
+                f'(Status: {tank.stock_status.upper()})</li>'
+            )
+        body += '</ul>'
+
+        mail_values = {
+            'subject': 'Low Stock Alert - Fuel Station Management',
+            'body_html': body,
+            'email_to': recipient,
+            'email_from': company.email or 'system@fuelstation.com',
+        }
+        self.env['mail.mail'].create(mail_values).send()

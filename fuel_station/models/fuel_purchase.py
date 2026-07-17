@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from odoo import api, fields, models
+# pyrefly: ignore [missing-import]
 from odoo.exceptions import UserError, ValidationError
 
 
@@ -9,8 +11,12 @@ class FuelPurchase(models.Model):
 
     On the *Deliver* action:
     - Tank current_stock is incremented by the ordered quantity.
+    - A draft vendor bill is auto-created via ``action_create_vendor_bill()``.
     - State changes to 'delivered'.
-    - A placeholder move_id field is available for Phase 4 vendor-bill creation.
+
+    On the *Post Bill* action:
+    - The linked vendor bill is posted.
+    - State changes to 'invoiced'.
     """
 
     _name = 'fuel.purchase'
@@ -115,14 +121,14 @@ class FuelPurchase(models.Model):
         tracking=True,
     )
 
-    # ── Accounting (Phase 4) ──────────────────────────────────────────────────
+    # ── Accounting ────────────────────────────────────────────────────────────
 
     move_id = fields.Many2one(
         comodel_name='account.move',
         string='Vendor Bill',
         readonly=True,
         copy=False,
-        help='Vendor bill created on delivery — populated in Phase 4.',
+        help='Draft vendor bill auto-created when fuel is delivered.',
     )
 
     notes = fields.Text(string='Notes')
@@ -143,7 +149,8 @@ class FuelPurchase(models.Model):
     def action_deliver(self):
         """Confirmed → Delivered.
 
-        Increments the destination tank's current_stock by the ordered quantity.
+        Increments the destination tank's current_stock by the ordered quantity
+        and auto-creates a draft vendor bill.
         """
         for rec in self:
             if rec.state != 'confirmed':
@@ -165,14 +172,93 @@ class FuelPurchase(models.Model):
                 'state': 'delivered',
             })
 
+            # Auto-create vendor bill
+            try:
+                rec.action_create_vendor_bill()
+            except UserError:
+                # Accounting not configured — log in chatter, don't block delivery
+                rec.message_post(
+                    body='⚠️ Vendor bill was NOT created — accounting settings '
+                         'are not fully configured. Go to Fuel Station → '
+                         'Configuration → Accounting Settings to set up '
+                         'purchase accounting.',
+                    message_type='notification',
+                )
+
     def action_mark_invoiced(self):
-        """Delivered → Invoiced (manual step until Phase 4 auto-creates the bill)."""
+        """Delivered → Invoiced.
+
+        Posts the linked vendor bill (if it exists and is in draft).
+        """
         for rec in self:
             if rec.state != 'delivered':
                 raise UserError('Only a Delivered purchase can be marked as invoiced.')
+            # Post the draft vendor bill if present
+            if rec.move_id and rec.move_id.state == 'draft':
+                rec.move_id.action_post()
             rec.state = 'invoiced'
 
+    # ── Accounting: Vendor Bill Creation ──────────────────────────────────────
+
+    def action_create_vendor_bill(self):
+        """Create a draft vendor bill for this fuel purchase.
+
+        Uses the purchase journal and expense account from fuel.account.config.
+        Called automatically from action_deliver().
+        """
+        AccountMove = self.env['account.move']
+        config = self.env['fuel.account.config']._get_config()
+        config._check_purchase_config()
+
+        for rec in self:
+            if rec.move_id:
+                continue  # already has a vendor bill
+
+            # Determine the payable account
+            payable = (
+                config.payable_account_id
+                or rec.supplier_id.property_account_payable_id
+            )
+
+            move_vals = {
+                'move_type': 'in_invoice',
+                'journal_id': config.purchase_journal_id.id,
+                'partner_id': rec.supplier_id.id,
+                'invoice_date': rec.actual_delivery_date or rec.date,
+                'ref': f'{rec.name} — {rec.fuel_type_id.name}',
+                'invoice_line_ids': [
+                    (0, 0, {
+                        'name': f'Fuel Purchase — {rec.quantity:.2f}L '
+                                f'{rec.fuel_type_id.name}',
+                        'account_id': config.expense_account_id.id,
+                        'quantity': rec.quantity,
+                        'price_unit': rec.price_per_litre,
+                    }),
+                ],
+            }
+
+            move = AccountMove.create(move_vals)
+            rec.move_id = move
+            rec.state = 'invoiced'
+
+    # ── Smart button: View Vendor Bill ────────────────────────────────────────
+
+    def action_view_bill(self):
+        """Open the linked vendor bill."""
+        self.ensure_one()
+        if not self.move_id:
+            raise UserError('No vendor bill is linked to this purchase.')
+        return {
+            'name': f'Vendor Bill — {self.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'res_id': self.move_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
     # ── Constraints ───────────────────────────────────────────────────────────
+
 
     @api.constrains('quantity')
     def _check_quantity(self):

@@ -126,6 +126,35 @@ class FuelShift(models.Model):
         compute='_compute_sale_count',
     )
 
+    # ── Reconciliation & Manager Approval ─────────────────────────────────────
+    cash_received = fields.Float(
+        string='Cash Received',
+        digits=(10, 2),
+        default=0.0,
+        tracking=True,
+    )
+    cash_difference = fields.Float(
+        string='Cash Difference',
+        compute='_compute_reconciliation',
+        store=True,
+        digits=(10, 2),
+    )
+    reconciliation_status = fields.Selection(
+        string='Reconciliation Status',
+        selection=[
+            ('unreconciled', 'Unreconciled'),
+            ('reconciled', 'Reconciled'),
+        ],
+        compute='_compute_reconciliation',
+        store=True,
+        default='unreconciled',
+    )
+    reconciled_by_id = fields.Many2one(
+        comodel_name='res.users',
+        string='Reconciled By',
+        readonly=True,
+    )
+
     notes = fields.Text(
         string='Manager Notes',
     )
@@ -144,6 +173,16 @@ class FuelShift(models.Model):
     def _compute_sale_count(self):
         for shift in self:
             shift.sale_count = len(shift.sale_ids)
+
+    @api.depends('net_cash', 'cash_received')
+    def _compute_reconciliation(self):
+        for shift in self:
+            if shift.cash_received > 0:
+                shift.cash_difference = shift.net_cash - shift.cash_received
+                shift.reconciliation_status = 'reconciled'
+            else:
+                shift.cash_difference = shift.net_cash
+                shift.reconciliation_status = 'unreconciled'
 
     # ── Action: Open Shift ────────────────────────────────────────────────────
 
@@ -278,7 +317,14 @@ class FuelShift(models.Model):
         for shift in self:
             if shift.state != 'closed':
                 raise UserError('Only a Closed shift can be locked.')
-            shift.state = 'locked'
+            if not shift.cash_received or shift.cash_received <= 0:
+                raise UserError(
+                    'Please record the actual cash received before locking the shift.'
+                )
+            shift.write({
+                'state': 'locked',
+                'reconciled_by_id': self.env.user.id,
+            })
 
     # ── Action: View Sales ────────────────────────────────────────────────────
 

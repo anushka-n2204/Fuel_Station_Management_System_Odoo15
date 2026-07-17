@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Shift Summary Template -->
+    <template id="report_shift_summary_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h2>Shift Summary Report</h2>
+                            <h4 t-field="doc.name"/>
+                        </div>
+
+                        <!-- Shift Meta Info -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Employee:</strong> <span t-field="doc.employee_id.name"/><br/>
+                                <strong>Shift Date:</strong> <span t-field="doc.date"/><br/>
+                                <strong>Status:</strong> <span t-field="doc.state"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>Opened:</strong> <span t-field="doc.opening_time"/><br/>
+                                <strong>Closed:</strong> <span t-field="doc.closing_time"/><br/>
+                                <strong>Reconciled By:</strong> <span t-field="doc.reconciled_by_id.name"/>
+                            </div>
+                        </div>
+
+                        <!-- Nozzle Readings -->
+                        <h4 class="mt-4">Nozzle Readings</h4>
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nozzle</th>
+                                    <th>Pump</th>
+                                    <th>Fuel Type</th>
+                                    <th class="text-right">Opening Meter</th>
+                                    <th class="text-right">Closing Meter</th>
+                                    <th class="text-right">Litres Sold</th>
+                                    <th class="text-right">Price/Litre</th>
+                                    <th class="text-right">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.shift_line_ids" t-as="line">
+                                    <td><span t-field="line.nozzle_id.name"/></td>
+                                    <td><span t-field="line.pump_id.name"/></td>
+                                    <td><span t-field="line.fuel_type_id.name"/></td>
+                                    <td class="text-right"><span t-field="line.opening_meter"/></td>
+                                    <td class="text-right"><span t-field="line.closing_meter"/></td>
+                                    <td class="text-right"><span t-field="line.litres_sold"/></td>
+                                    <td class="text-right"><span t-field="line.price_per_litre"/></td>
+                                    <td class="text-right"><span t-field="line.revenue"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Expenses -->
+                        <t t-if="doc.expense_ids">
+                            <h4 class="mt-4">Shift Expenses</h4>
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th class="text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.expense_ids" t-as="expense">
+                                        <td><span t-field="expense.date"/></td>
+                                        <td><span t-field="expense.expense_type"/></td>
+                                        <td><span t-field="expense.description"/></td>
+                                        <td class="text-right"><span t-field="expense.amount"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Totals & Reconciliation -->
+                        <div class="row mt-4 pt-4 border-top">
+                            <div class="col-6">
+                                <h4>Shift Reconciliation</h4>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td><strong>Status:</strong></td>
+                                        <td><span t-field="doc.reconciliation_status"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Cash Received:</strong></td>
+                                        <td><span t-field="doc.cash_received"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Difference:</strong></td>
+                                        <td><span t-field="doc.cash_difference"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-sm table-borderless text-right float-right" style="width: 80%;">
+                                    <tr>
+                                        <td>Total Litres:</td>
+                                        <td><strong><span t-field="doc.total_litres"/> L</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Revenue:</td>
+                                        <td><strong><span t-field="doc.total_revenue"/></strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Expenses:</td>
+                                        <td><strong>(<span t-field="doc.total_expenses"/>)</strong></td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td><h4>Net Cash:</h4></td>
+                                        <td><h4><span t-field="doc.net_cash"/></h4></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Daily Sales Report Template -->
+    <template id="report_daily_sales_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="text-center mb-4">
+                        <h2>Sales Report</h2>
+                        <p>Generated on: <span t-esc="context_today().strftime('%Y-%m-%d')"/></p>
+                    </div>
+
+                    <!-- Summary by Fuel Type -->
+                    <h4>Summary by Fuel Type</h4>
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fuel Type</th>
+                                <th class="text-right">Sales Count</th>
+                                <th class="text-right">Total Litres</th>
+                                <th class="text-right">Average Price</th>
+                                <th class="text-right">Total Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- We can compute values in QWeb using t-set -->
+                            <t t-set="fuel_totals" t-value="{}"/>
+                            <t t-foreach="docs" t-as="doc">
+                                <t t-set="fuel" t-value="doc.fuel_type_id.name"/>
+                                <t t-if="fuel not in fuel_totals">
+                                    <t t-set="dummy" t-value="fuel_totals.update({fuel: {'count': 0, 'litres': 0.0, 'subtotal': 0.0}})"/>
+                                </t>
+                                <t t-set="dummy" t-value="fuel_totals[fuel].update({
+                                    'count': fuel_totals[fuel]['count'] + 1,
+                                    'litres': fuel_totals[fuel]['litres'] + doc.litres_sold,
+                                    'subtotal': fuel_totals[fuel]['subtotal'] + doc.subtotal
+                                })"/>
+                            </t>
+                            <tr t-foreach="fuel_totals" t-as="fuel">
+                                <td><span t-esc="fuel"/></td>
+                                <td class="text-right"><span t-esc="fuel_totals[fuel]['count']"/></td>
+                                <td class="text-right"><span t-esc="fuel_totals[fuel]['litres']" t-options="{'widget': 'float', 'precision': 2}"/></td>
+                                <td class="text-right">
+                                    <span t-if="fuel_totals[fuel]['litres'] > 0" t-esc="fuel_totals[fuel]['subtotal'] / fuel_totals[fuel]['litres']" t-options="{'widget': 'float', 'precision': 3}"/>
+                                    <span t-else="">0.000</span>
+                                </td>
+                                <td class="text-right"><span t-esc="fuel_totals[fuel]['subtotal']" t-options="{'widget': 'monetary', 'display_currency': res_company.currency_id}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Details Table -->
+                    <h4 class="mt-5">Transaction Details</h4>
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Date</th>
+                                <th>Nozzle</th>
+                                <th>Fuel Type</th>
+                                <th class="text-right">Litres Sold</th>
+                                <th class="text-right">Price/Litre</th>
+                                <th>Payment Method</th>
+                                <th class="text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="doc">
+                                <td><span t-field="doc.name"/></td>
+                                <td><span t-field="doc.date"/></td>
+                                <td><span t-field="doc.nozzle_id.name"/></td>
+                                <td><span t-field="doc.fuel_type_id.name"/></td>
+                                <td class="text-right"><span t-field="doc.litres_sold"/></td>
+                                <td class="text-right"><span t-field="doc.price_per_litre"/></td>
+                                <td><span t-field="doc.payment_method"/></td>
+                                <td class="text-right"><span t-field="doc.subtotal"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Tank Level Report Template -->
+    <template id="report_tank_level_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="text-center mb-4">
+                        <h2>Tank Level Status Report</h2>
+                        <p>Generated on: <span t-esc="context_today().strftime('%Y-%m-%d')"/></p>
+                    </div>
+
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tank Name</th>
+                                <th>Fuel Type</th>
+                                <th class="text-right">Capacity (L)</th>
+                                <th class="text-right">Current Stock (L)</th>
+                                <th class="text-right">Minimum Level (L)</th>
+                                <th class="text-right">Stock %</th>
+                                <th>Status</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="docs" t-as="doc">
+                                <td><span t-field="doc.name"/></td>
+                                <td><span t-field="doc.fuel_type_id.name"/></td>
+                                <td class="text-right"><span t-field="doc.capacity"/></td>
+                                <td class="text-right"><span t-field="doc.current_stock"/></td>
+                                <td class="text-right"><span t-field="doc.min_level"/></td>
+                                <td class="text-right"><span t-field="doc.stock_percentage"/> %</td>
+                                <td>
+                                    <span t-if="doc.stock_status == 'ok'" class="badge badge-success">OK</span>
+                                    <span t-elif="doc.stock_status == 'low'" class="badge badge-warning">Low</span>
+                                    <span t-elif="doc.stock_status == 'critical'" class="badge badge-danger">Critical</span>
+                                    <span t-else="" class="badge badge-secondary"><span t-field="doc.stock_status"/></span>
+                                </td>
+                                <td><span t-field="doc.location"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Customer Statement Template -->
+    <template id="report_customer_statement_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center mb-4">
+                            <h2>Fleet Customer Statement</h2>
+                            <h4 t-field="doc.name"/>
+                        </div>
+
+                        <!-- Customer Details and Credit Status -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Contact Person:</strong> <span t-field="doc.partner_id.name"/><br/>
+                                <strong>Vehicle Registration:</strong> <span t-field="doc.vehicle_reg"/><br/>
+                                <strong>Allowed Fuel:</strong> <span t-field="doc.fuel_type_id.name"/><br/>
+                                <strong>Status:</strong> <span t-field="doc.state"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>Credit Limit:</strong> <span t-field="doc.credit_limit"/><br/>
+                                <strong>Credit Used:</strong> <span t-field="doc.credit_used"/><br/>
+                                <strong>Remaining Balance:</strong> <span t-field="doc.credit_balance"/>
+                            </div>
+                        </div>
+
+                        <!-- Sales History Table -->
+                        <h4 class="mt-4">Transaction History</h4>
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Date</th>
+                                    <th>Nozzle</th>
+                                    <th>Fuel Type</th>
+                                    <th class="text-right">Litres</th>
+                                    <th class="text-right">Price/Litre</th>
+                                    <th class="text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.sale_ids" t-as="sale">
+                                    <td><span t-field="sale.name"/></td>
+                                    <td><span t-field="sale.date"/></td>
+                                    <td><span t-field="sale.nozzle_id.name"/></td>
+                                    <td><span t-field="sale.fuel_type_id.name"/></td>
+                                    <td class="text-right"><span t-field="sale.litres_sold"/></td>
+                                    <td class="text-right"><span t-field="sale.price_per_litre"/></td>
+                                    <td class="text-right"><span t-field="sale.subtotal"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

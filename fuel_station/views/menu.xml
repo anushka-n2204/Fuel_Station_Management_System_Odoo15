@@ -85,4 +85,25 @@
               action="action_fuel_nozzle"
               sequence="40"/>
 
+    <menuitem id="menu_fuel_account_config"
+              name="Accounting Settings"
+              parent="menu_fuel_config"
+              action="action_fuel_account_config"
+              sequence="50"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         REPORTING
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <menuitem id="menu_fuel_reports"
+              name="Reporting"
+              parent="menu_fuel_station_root"
+              sequence="50"/>
+
+    <menuitem id="menu_fuel_report_wizard"
+              name="Excel Exports"
+              parent="menu_fuel_reports"
+              action="action_fuel_report_wizard"
+              sequence="10"/>
+
 </odoo>

@@ -1,4 +1,3 @@
-# ── Phase 2: Master Data Models ─────────────────────────────────────────────
 # Import order follows the dependency chain:
 #   fuel.type  →  fuel.tank  →  fuel.pump  →  fuel.nozzle
 from . import fuel_type
@@ -6,7 +5,6 @@ from . import fuel_tank
 from . import fuel_pump
 from . import fuel_nozzle
 
-# ── Phase 3: Operations Models ───────────────────────────────────────────────
 # Dependency order:
 #   fuel.fleet  (standalone — referenced by fuel.sale)
 #   fuel.expense (standalone — referenced by fuel.shift)
@@ -20,4 +18,8 @@ from . import fuel_sale
 from . import fuel_shift_line
 from . import fuel_shift
 from . import fuel_purchase
+
+from . import fuel_account_config
+
+from . import fuel_report_wizard
 

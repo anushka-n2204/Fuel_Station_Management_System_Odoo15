@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         FUEL STATION — Scheduled Actions (Cron Jobs)
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <record id="cron_fuel_tank_low_stock_alert" model="ir.cron">
+        <field name="name">Fuel Station: Low Stock Alert</field>
+        <field name="model_id" ref="model_fuel_tank"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_low_stock_alert()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+        <field name="active" eval="True"/>
+    </record>
+
+</odoo>

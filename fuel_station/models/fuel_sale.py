@@ -235,6 +235,7 @@ class FuelSale(models.Model):
                 s.subtotal
                 for s in fleet.sale_ids
                 if s.payment_method == 'credit' and s.id != sale.id
+                and (not s.move_id or s.move_id.payment_state != 'paid')
             )
             this_subtotal = sale.litres_sold * sale.price_per_litre
             prospective_used = existing_credit + this_subtotal

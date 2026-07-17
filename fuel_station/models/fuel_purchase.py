@@ -193,8 +193,9 @@ class FuelPurchase(models.Model):
         for rec in self:
             if rec.state != 'delivered':
                 raise UserError('Only a Delivered purchase can be marked as invoiced.')
-            # Post the draft vendor bill if present
-            if rec.move_id and rec.move_id.state == 'draft':
+            if not rec.move_id:
+                raise UserError('No vendor bill is linked to this purchase. Please create a vendor bill first.')
+            if rec.move_id.state == 'draft':
                 rec.move_id.action_post()
             rec.state = 'invoiced'
 
@@ -213,12 +214,6 @@ class FuelPurchase(models.Model):
         for rec in self:
             if rec.move_id:
                 continue  # already has a vendor bill
-
-            # Determine the payable account
-            payable = (
-                config.payable_account_id
-                or rec.supplier_id.property_account_payable_id
-            )
 
             move_vals = {
                 'move_type': 'in_invoice',
@@ -239,7 +234,6 @@ class FuelPurchase(models.Model):
 
             move = AccountMove.create(move_vals)
             rec.move_id = move
-            rec.state = 'invoiced'
 
     # ── Smart button: View Vendor Bill ────────────────────────────────────────
 

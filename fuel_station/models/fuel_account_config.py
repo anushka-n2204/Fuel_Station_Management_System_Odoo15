@@ -23,6 +23,16 @@ class FuelAccountConfig(models.Model):
         readonly=True,
     )
 
+    singleton_key = fields.Char(
+        string='Singleton Key',
+        default='default',
+        readonly=True,
+    )
+
+    _sql_constraints = [
+        ('singleton_key_uniq', 'unique(singleton_key)', 'Only one configuration record is allowed.')
+    ]
+
     # ── Sales accounting ─────────────────────────────────────────────────────
 
     journal_id = fields.Many2one(
@@ -58,13 +68,6 @@ class FuelAccountConfig(models.Model):
         help='Cost account for fuel purchases (Cost of Goods Sold). '
              'Debited on the vendor bill line.',
     )
-    payable_account_id = fields.Many2one(
-        comodel_name='account.account',
-        string='Default Payable Account',
-        help="Supplier payable account. If left empty the supplier partner's "
-             "default payable is used.",
-    )
-
     # ── Singleton accessor ───────────────────────────────────────────────────
 
     @api.model
@@ -72,7 +75,14 @@ class FuelAccountConfig(models.Model):
         """Return the singleton config record, creating it if needed."""
         config = self.search([], limit=1)
         if not config:
-            config = self.create({'name': 'Fuel Station Accounting Settings'})
+            try:
+                with self.env.cr.savepoint():
+                    config = self.create({
+                        'name': 'Fuel Station Accounting Settings',
+                        'singleton_key': 'default'
+                    })
+            except Exception:
+                config = self.search([], limit=1)
         return config
 
     def action_open_config(self):

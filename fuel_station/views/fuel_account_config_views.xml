@@ -24,7 +24,6 @@
                         <group string="Purchase Accounting">
                             <field name="purchase_journal_id"/>
                             <field name="expense_account_id"/>
-                            <field name="payable_account_id"/>
                         </group>
                     </group>
                     <div class="alert alert-info" role="alert" style="margin-top:16px;">
@@ -44,19 +43,13 @@
         </field>
     </record>
 
-    <!-- Window action (called by menu item via config model method) -->
-    <record id="action_fuel_account_config" model="ir.actions.act_window">
+    <!-- Server action — delegates to action_open_config() for proper singleton handling -->
+    <record id="action_fuel_account_config" model="ir.actions.server">
         <field name="name">Accounting Settings</field>
-        <field name="res_model">fuel.account.config</field>
-        <field name="view_mode">form</field>
-        <field name="target">inline</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Configure fuel station accounting
-            </p>
-            <p>Set the journals and accounts used for automatic journal entries
-               on fuel sales and vendor bills on fuel purchases.</p>
-        </field>
+        <field name="model_id" ref="model_fuel_account_config"/>
+        <field name="binding_model_id" ref="model_fuel_account_config"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_open_config()</field>
     </record>
 
 </odoo>

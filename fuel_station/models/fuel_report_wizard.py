@@ -46,11 +46,12 @@ class FuelReportWizard(models.TransientModel):
         self.ensure_one()
         
         # Validate date range
-        if self.report_type in ['sales', 'shifts', 'purchases'] and self.date_from > self.date_to:
-            raise UserError('Start Date cannot be later than End Date.')
+        if self.report_type in ['sales', 'shifts', 'purchases'] and self.date_from and self.date_to:
+            if self.date_from > self.date_to:
+                raise UserError('Start Date cannot be later than End Date.')
 
         output = io.BytesIO()
-        workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+        workbook = xlsxwriter.Workbook(output, {'in_memory': True, 'strings_to_formulas': False})
         
         # Format presets
         title_format = workbook.add_format({

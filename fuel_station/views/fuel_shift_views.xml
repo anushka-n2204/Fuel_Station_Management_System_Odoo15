@@ -173,8 +173,12 @@
                     <group>
                         <group string="Reconciliation" attrs="{'invisible': [('state', 'in', ['draft', 'open'])]}">
                             <field name="cash_received" attrs="{'readonly': [('state', '=', 'locked')]}"/>
+                            <field name="cash_received_confirmed" attrs="{'readonly': [('state', '=', 'locked')]}"/>
                             <field name="cash_difference" readonly="1"/>
-                            <field name="reconciliation_status" readonly="1"/>
+                            <field name="reconciliation_status" readonly="1" widget="badge"
+                                   decoration-success="reconciliation_status == 'reconciled'"
+                                   decoration-warning="reconciliation_status == 'discrepancy'"
+                                   decoration-muted="reconciliation_status == 'unreconciled'"/>
                             <field name="reconciled_by_id" readonly="1"/>
                         </group>
                         <group class="oe_subtotal_footer oe_right">

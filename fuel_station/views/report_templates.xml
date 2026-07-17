@@ -131,7 +131,7 @@
                 <div class="page">
                     <div class="text-center mb-4">
                         <h2>Sales Report</h2>
-                        <p>Generated on: <span t-esc="context_today().strftime('%Y-%m-%d')"/></p>
+                        <p>Generated on: <span t-esc="time.strftime('%Y-%m-%d')"/></p>
                     </div>
 
                     <!-- Summary by Fuel Type -->
@@ -213,7 +213,7 @@
                 <div class="page">
                     <div class="text-center mb-4">
                         <h2>Tank Level Status Report</h2>
-                        <p>Generated on: <span t-esc="context_today().strftime('%Y-%m-%d')"/></p>
+                        <p>Generated on: <span t-esc="time.strftime('%Y-%m-%d')"/></p>
                     </div>
 
                     <table class="table table-sm table-striped">

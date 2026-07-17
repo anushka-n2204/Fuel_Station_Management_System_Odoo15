@@ -133,6 +133,14 @@ class FuelShift(models.Model):
         default=0.0,
         tracking=True,
     )
+    cash_received_confirmed = fields.Boolean(
+        string='Cash Entry Confirmed',
+        default=False,
+        tracking=True,
+        help='Set to True once the manager has explicitly recorded the actual '
+             'cash received for this shift. Prevents zero being treated as a '
+             'confirmed entry.',
+    )
     cash_difference = fields.Float(
         string='Cash Difference',
         compute='_compute_reconciliation',
@@ -144,6 +152,7 @@ class FuelShift(models.Model):
         selection=[
             ('unreconciled', 'Unreconciled'),
             ('reconciled', 'Reconciled'),
+            ('discrepancy', 'Discrepancy'),
         ],
         compute='_compute_reconciliation',
         store=True,
@@ -174,15 +183,20 @@ class FuelShift(models.Model):
         for shift in self:
             shift.sale_count = len(shift.sale_ids)
 
-    @api.depends('net_cash', 'cash_received')
+    @api.depends('net_cash', 'cash_received', 'cash_received_confirmed')
     def _compute_reconciliation(self):
+        precision = self.env['decimal.precision'].precision_get('Account')
         for shift in self:
-            if shift.cash_received > 0:
-                shift.cash_difference = shift.net_cash - shift.cash_received
+            if not shift.cash_received_confirmed:
+                shift.cash_difference = 0.0
+                shift.reconciliation_status = 'unreconciled'
+                continue
+            diff = shift.net_cash - shift.cash_received
+            shift.cash_difference = diff
+            if round(diff, precision) == 0.0:
                 shift.reconciliation_status = 'reconciled'
             else:
-                shift.cash_difference = shift.net_cash
-                shift.reconciliation_status = 'unreconciled'
+                shift.reconciliation_status = 'discrepancy'
 
     # ── Action: Open Shift ────────────────────────────────────────────────────
 
@@ -284,7 +298,7 @@ class FuelShift(models.Model):
                 litres = line.closing_meter - line.opening_meter
 
                 # Create sale record
-                FuelSale.create({
+                sale = FuelSale.create({
                     'shift_id': shift.id,
                     'date': shift.date,
                     'nozzle_id': line.nozzle_id.id,
@@ -293,6 +307,7 @@ class FuelShift(models.Model):
                     'price_per_litre': line.price_per_litre,
                     'payment_method': 'cash',
                 })
+                sale.action_create_journal_entry()
 
                 # Decrement tank stock via the nozzle → pump → tank chain
                 tank = line.nozzle_id.pump_id.tank_id
@@ -317,9 +332,15 @@ class FuelShift(models.Model):
         for shift in self:
             if shift.state != 'closed':
                 raise UserError('Only a Closed shift can be locked.')
-            if not shift.cash_received or shift.cash_received <= 0:
+            if not shift.cash_received_confirmed:
                 raise UserError(
-                    'Please record the actual cash received before locking the shift.'
+                    'Please confirm the actual cash received before locking the shift. '
+                    'Enter the cash amount and tick "Cash Entry Confirmed".'
+                )
+            if shift.reconciliation_status == 'discrepancy':
+                raise UserError(
+                    f'The shift has a cash discrepancy of {shift.cash_difference:,.2f}. '
+                    'Please resolve the discrepancy before locking.'
                 )
             shift.write({
                 'state': 'locked',

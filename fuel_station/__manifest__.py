@@ -33,6 +33,9 @@ Manages the full operations of a fuel station:
         # Sequences — must come first so auto-numbering is available
         'data/sequences.xml',
 
+        # Scheduled actions (cron)
+        'data/cron.xml',
+
         # Security — must come before views
         'security/ir.model.access.csv',
 
